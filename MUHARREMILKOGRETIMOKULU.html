@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Harfleri Öğreniyorum</title>
+<style>
+  body { background: linear-gradient(to bottom, #FFFAE3, #FFDDDD); font-family: Arial; text-align:center;}
+  h1 { color: #FF4500; margin-top:20px;}
+  #giris, #oyun { margin-top:30px; }
+  input { padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; }
+  button { padding:10px 20px; margin:5px; border:none; border-radius:12px; cursor:pointer; font-size:16px; transition:0.3s;}
+  button:hover { transform: scale(1.1); }
+  .balon { width:60px; height:60px; border-radius:50%; display:inline-block; margin:5px; line-height:60px; color:white; font-weight:bold; position: relative; animation: floatAnim 5s infinite;}
+  @keyframes floatAnim {
+    0% { top:0px; transform:rotate(0deg); }
+    50% { top:-50px; transform:rotate(15deg); }
+    100% { top:0px; transform:rotate(-15deg); }
+  }
+  canvas { border:1px solid #ccc; margin-top:20px; background:#fff; }
+</style>
+</head>
+<body>
+
+<h1>Harfleri Öğreniyorum</h1>
+
+<div id="giris">
+  <input type="text" id="kullanici" placeholder="İsminizi girin">
+  <button onclick="girisYap()">Giriş Yap</button>
+</div>
+
+<div id="oyun" style="display:none;">
+  <h2 id="harfBaslik">Harf: A</h2>
+  <div id="balonlar"></div>
+  <button onclick="sonrakiHarf()">Sonraki Harf</button>
+  <canvas id="cizim" width="400" height="300"></canvas>
+  <button onclick="temizleCanvas()">Çizimi Temizle</button>
+</div>
+
+<script>
+// Alfabe ve örnekler (her harf için 100+ örnek eklenebilir)
+const alfabe = ["A","B","C","Ç","D","E","F","G","Ğ","H","I","İ","J","K","L","M","N","O","Ö","P","R","S","Ş","T","U","Ü","V","Y","Z"];
+let harfIndex = 0;
+
+const ornekler = {
+  "A":["a","ab","ac","ali","araba","ay","armut","at","alt","akşam"],
+  "B":["ba","be","bi","baba","bal","biber","beyaz","boya","bat","bacak"],
+  "C":["ca","ce","ci","cami","cicek","canta","can","cocuk","cok","cam"],
+  "Ç":["ça","çe","çi","çanta","çiçek","çilek","çocuk","çorap","çay","çorba"]
+  // Tüm alfabe ve 100+ örnek burada eklenmeli
+};
+
+function girisYap(){
+  const isim = document.getElementById("kullanici").value;
+  if(!isim){ alert("Lütfen isminizi girin!"); return; }
+  document.getElementById("giris").style.display="none";
+  document.getElementById("oyun").style.display="block";
+  rastgeleBalon();
+}
+
+function rastgeleBalon(){
+  const balonDiv = document.getElementById("balonlar");
+  balonDiv.innerHTML="";
+  const harf = alfabe[harfIndex];
+  for(let i=0;i<10;i++){
+    const b = document.createElement("div");
+    b.className="balon";
+    b.style.background=colorRastgele();
+    b.innerText=ornekler[harf][Math.floor(Math.random()*ornekler[harf].length)];
+    b.onclick = ()=>{ alert("Sesli: "+b.innerText); } // Sesli oynatma eklenebilir
+    balonDiv.appendChild(b);
+  }
+  document.getElementById("harfBaslik").innerText="Harf: "+harf;
+}
+
+function sonrakiHarf(){
+  harfIndex = (harfIndex+1)%alfabe.length;
+  rastgeleBalon();
+}
+
+function colorRastgele(){
+  const renkler=["#FF6347","#FF4500","#FF1493","#00BFFF","#32CD32","#FFD700","#FF69B4","#8A2BE2","#00CED1"];
+  return renkler[Math.floor(Math.random()*renkler.length)];
+}
+
+// Canvas çizim
+const canvas = document.getElementById("cizim");
+const ctx = canvas.getContext("2d");
+let cizim = false;
+canvas.addEventListener("mousedown",()=>{cizim=true});
+canvas.addEventListener("mouseup",()=>{cizim=false; ctx.beginPath();});
+canvas.addEventListener("mousemove",(e)=>{
+  if(!cizim) return;
+  ctx.lineWidth=3;
+  ctx.lineCap="round";
+  ctx.strokeStyle="#FF4500";
+  ctx.lineTo(e.offsetX,e.offsetY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(e.offsetX,e.offsetY);
+});
+function temizleCanvas(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+</script>
+
+</body>
+</html>
